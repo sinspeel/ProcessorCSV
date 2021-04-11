@@ -1,0 +1,192 @@
+﻿// ----------------------------------------------------------------------------------------------------------
+// ---------------------------------------------- Mixins !mx_* ----------------------------------------------
+// ----------------------------------------------------------------------------------------------------------
+//-- Mixin helper to output vendor prefixes
+// for: background-size, box-sizing, translate, transition, etc..
+@mixin prefix($property, $value, $prefixes: ()) {
+    @each $prefix in $prefixes {
+        -#{$prefix}-#{$property}: $value;
+    }
+
+    #{$property}: $value;
+}
+
+//-- Mixin for background-gradient !mx_bgrad01
+@mixin background-gradient($start-color, $end-color, $orientation) {
+    background-color: $start-color;
+
+    @if $orientation == "vertical" {
+        background: -webkit-linear-gradient(top, $start-color, $end-color);
+        background: linear-gradient(to bottom, $start-color, $end-color);
+    }
+    @else if $orientation == "horizontal" {
+        background: -webkit-linear-gradient(left, $start-color, $end-color);
+        background: linear-gradient(to right, $start-color, $end-color);
+    }
+    @else {
+        background: -webkit-radial-gradient(center, ellipse cover, $start-color, $end-color);
+        background: radial-gradient(ellipse at center, $start-color, $end-color);
+    }
+}
+
+//-- Mixin for background-size !mx_bgsize01
+@mixin background-size($width, $height: $width) {
+    @include prefix(background-size, $width $height, "webkit" "moz");
+}
+
+//-- Mixin for border-radius-seperate !mx_bradius01
+@mixin border-radius-seperate($top-left-radius, $top-right-radius, $bottom-left-radius, $bottom-right-radius) {
+    @include prefix(border-top-left-radius, $top-left-radius, "webkit" "moz");
+    @include prefix(border-top-right-radius, $top-right-radius, "webkit" "moz");
+    @include prefix(border-bottom-left-radius, $bottom-left-radius, "webkit" "moz");
+    @include prefix(border-bottom-right-radius, $bottom-right-radius, "webkit" "moz");
+}
+
+//-- Mixin for center-block !mx_centerblock01
+// for: block horizontal centering
+@mixin center-block() {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+//-- Mixin for center-both !mx_centerboth01
+// for: Block horizontal and vertical centering helper Important: you must have a parent element with position: relative.
+@mixin center-both() {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    @include prefix(transform, translate(-50%, -50%), "webkit" "ms");
+}
+
+$base-font-size: 16px !default; // 1rem
+//-- Mixin for font-face !mx_fontface01
+@mixin font-face($font-name, $file-name, $weight: normal, $style: normal) {
+    @font-face {
+        font-family: quote($font-name);
+        src: url($file-name + ".eot");
+        src: url($file-name + ".eot?#iefix") format("embedded-opentype"), url($file-name + ".woff") format("woff"), url($file-name + ".truetype") format("truetype"), url($file-name + ".svg##{$font-name}") format("svg");
+        font-weight: $weight;
+        font-style: $style;
+    }
+}
+
+//-- Mixin for font-face !mx_fontsize01
+@mixin font-size($size) {
+    @if unitless($size) {
+        $size: $size * 1px;
+    }
+
+    font-size: $size;
+    font-size: ($size / $base-font-size) * 1rem;
+}
+
+//-- Mixin for image-2x (retina) !mx_imgretina2x01
+@mixin image-2x($image, $width, $height) {
+    @media (-webkit-min-device-pixel-ratio: 1.3), (min-resolution: 124dpi), (min-resolution: 1.3dppx) {
+        /* on retina, use image that's scaled by 2 */
+        background-image: url($image);
+        background-size: $width $height;
+    }
+}
+
+//-- Mixin for position !mx_positioning01
+@mixin position($type, $left: null, $right: null, $top: null, $bottom: null) {
+    position: $type;
+    top: $top;
+    right: $right;
+    bottom: $bottom;
+    left: $left;
+}
+
+//-- Mixin for size !mx_size01
+@mixin size($width, $height: $width) {
+    width: $width;
+    height: $height;
+}
+
+//-- Mixin for transition !mx_transition01
+@mixin transition($time: 1s, $timing-function: ease-in-out) {
+    @include prefix(transition, all $time $timing-function, "webkit");
+}
+
+//-- fluid typography !fn_ft01
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+    $u1: unit($min-vw);
+    $u2: unit($max-vw);
+    $u3: unit($min-font-size);
+    $u4: unit($max-font-size);
+
+    @if $u1 == $u2 and $u1 == $u3 and $u1 = $u4 {
+        & {
+            font-size: $min-font-size;
+
+            @media screen and (min-width: $min-vw) {
+                font-size: calc( #{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}) );
+            }
+
+            @media screen and (min-width: $max-vw) {
+                font-size: $max-font-size;
+            }
+        }
+    }
+}
+
+
+//-- buttons and links !mx_btnlinks01
+//======= mixin btnCustom($bg, $color, $border) {
+//=======    background-color: $bg;
+//=======    color: $color;
+//=======    border-color: $border;
+//=======
+
+@mixin btnCustom($bg, $color, $border, $important: 0) {
+    @if $important == 1 {
+        background-color: $bg !important;
+        color: $color !important;
+        border-color: $border !important;
+    }
+    @else {
+        background-color: $bg;
+        color: $color;
+        border-color: $border;
+    }
+}
+//-- padding & margin !mx_padmar01
+@mixin padding($values...) {
+    @each $var in $values {
+        padding: #{$var};
+    }
+}
+
+//-- media queries !mx_mediaQ01
+@mixin smallScreens() {
+    @media only screen and (max-width: 320px) {
+        @content;
+    }
+}
+
+@mixin lgScreens() {
+    @media only screen and (min-width: 992) {
+        @content;
+    }
+}
+
+@mixin title-stats() {
+    display: inline-block;
+    content: " ";
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+    background: #D1D3E0;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+//-- Mixin for opacity !mx_opacity01
+@mixin opacity($opacity) {
+    opacity: $opacity;
+    -ms-filter: "progid: DXImageTransform.Microsoft.Alpha(Opacity=#{$opacity * 100})";
+    // @include prefix(filter, "progid: DXImageTransform.Microsoft.Alpha(Opacity=#{$opacity * 100})", "ms");
+}
+// end ---------------------------------------------- Mixins !mx_* ----------------------------------------------
